@@ -8,9 +8,11 @@ import {
   KeyboardAvoidingView,
   TouchableWithoutFeedback,
   Platform,
-  Keyboard
+  Keyboard,
+  Alert
 } from 'react-native';
 import { useNavigation } from '@react-navigation/core';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { Button } from '../components/Button'
 
@@ -38,8 +40,25 @@ export function UserIdentification(){
     setName(value);
   }
 
-  function handleSubmit() {
-    navigation.navigate('Confirmation')
+  async function handleSubmit() {
+
+    if (!name)
+      return Alert.alert("Informe como podemos te chamar 😅")
+
+    try {
+      await AsyncStorage.setItem('@plantmanager:user', name)
+    } catch {
+      return Alert.alert("Não foi possível salvar suas informações 😢")
+    }
+
+    navigation.navigate('Confirmation', {
+      title: "Prontinho",
+      subtitle: "Agora vamos começar a cuidar das suas plantinhas com muito carinho!",
+      buttonTitle: "Começar",
+      icon: "smile",
+      nextScreen: "PlantSelect"
+    })
+
   }
 
   return (
@@ -80,7 +99,7 @@ export function UserIdentification(){
               <View style={styles.footer}>
                 <Button 
                   title="Confirmar" 
-                  onPress={isFilled ? handleSubmit : () => null}
+                  onPress={handleSubmit}
                 />
               </View>
             </View>
